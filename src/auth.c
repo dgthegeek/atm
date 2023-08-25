@@ -3,35 +3,6 @@
 
 const char *DB_FILE = "./data/atm.db";
 
-// Function to check if a username already exists
-int isUsernameTaken(const char *username)
-{
-    sqlite3 *db;
-    int rc = sqlite3_open(DB_FILE, &db);
-    if (rc != SQLITE_OK)
-    {
-        printf("Error opening database: %s\n", sqlite3_errmsg(db));
-        sqlite3_close(db);
-        return 1; // Return taken
-    }
-
-    char query[100];
-    sprintf(query, "SELECT * FROM Users WHERE Name = '%s'", username);
-
-    int taken = 0;
-    rc = sqlite3_exec(db, query, NULL, NULL, NULL);
-    if (rc == SQLITE_ROW) // Username found
-    {
-        taken = 1; // Return taken
-    }
-    else if (rc != SQLITE_OK)
-    {
-        printf("Error checking username: %s\n", sqlite3_errmsg(db));
-    }
-
-    sqlite3_close(db);
-    return taken;
-}
 
 void registerMenu()
 {
@@ -44,16 +15,15 @@ void registerMenu()
         return;
     }
 
+validation:
     struct User newUser;
     printf("Enter a username: ");
     scanf("%s", newUser.name);
 
-    if (isUsernameTaken(newUser.name))
-    
-    {
-        printf("Username is already taken.\n");
+    if (isUsernameTaken(newUser.name)) {
+        printf("Username is already taken.\nPleaze try again...\n");
         sqlite3_close(db);
-        return;
+        goto validation;
     }
 
     printf("Enter a password: ");
@@ -111,8 +81,11 @@ validation:
     char username[50], password[100];
     printf("Enter your username: ");
     scanf("%s", username);
+
+    system("stty -echo");
     printf("Enter your password: ");
     scanf("%s", password);
+    system("stty echo");
 
     char query[100];
     sprintf(query, "SELECT * FROM Users WHERE Name = ? AND Password = ?");
