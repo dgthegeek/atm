@@ -18,7 +18,6 @@ struct Date
 struct Record
 {
     int userId;
-    char name[100];
     char country[100];
     int phone;
     char accountType[10];
@@ -34,20 +33,20 @@ struct User
 };
 
 // authentication functions
-int loginMenu();
+int loginMenu(struct User *u);
 void registerMenu();
 extern const char *DB_FILE;
 
 
 // system function
-void createNewAcc(struct User u);
-void mainMenu(struct User u);
+void createNewAcc(struct User *u);
+void mainMenu(struct User *u);
 void checkAllAccounts(struct User u);
 
 //utils functions
 void flushBuffer();
 void Scanner(int *i);
-int getUserIdByUsername(sqlite3 *db, const char *username);
+int getUserIdByUsername(const char *username);
 int isAccountNumberTaken(const int *AccountNbr);
 int isUsernameTaken(const char *username);
 

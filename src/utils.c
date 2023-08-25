@@ -99,7 +99,7 @@ void stayOrReturn(int notGood, void f(struct User u), struct User u)
         if (option == 0)
             f(u);
         else if (option == 1)
-            mainMenu(u);
+            mainMenu(&u);
         else if (option == 2)
             exit(0);
         else
@@ -116,7 +116,7 @@ void stayOrReturn(int notGood, void f(struct User u), struct User u)
     if (option == 1)
     {
         system("clear");
-        mainMenu(u);
+        mainMenu(&u);
     }
     else
     {
@@ -135,7 +135,7 @@ invalid:
     system("clear");
     if (option == 1)
     {
-        mainMenu(u);
+        mainMenu(&u);
     }
     else if (option == 0)
     {
@@ -261,8 +261,17 @@ int isAccountNumberTaken(const int *AccountNbr)
     return taken;
 }
 
-int getUserIdByUsername(sqlite3 *db, const char *username) {
+int getUserIdByUsername(const char *username) {
     int userId = -1; // Initialize with an invalid value
+    sqlite3 *db;
+    
+    int rc1 = sqlite3_open(DB_FILE, &db);
+    if (rc1 != SQLITE_OK)
+    {
+        printf("Error opening database: %s\n", sqlite3_errmsg(db));
+        sqlite3_close(db);
+        return;
+    }
 
     const char *query = "SELECT ID FROM Users WHERE Name = ?";
 

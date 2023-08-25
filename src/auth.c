@@ -62,13 +62,14 @@ validation:
     }
 
     sqlite3_close(db);
-    printf("Registration successful!\n");
+    printf("Registration succeededful!\n");
+    mainMenu(&newUser);
 }
 
 
-int loginMenu()
+int loginMenu(struct User *u)
 {
-
+    
     sqlite3 *db;
     int rc = sqlite3_open(DB_FILE, &db);
     if (rc != SQLITE_OK)
@@ -103,10 +104,10 @@ validation:
     sqlite3_bind_text(stmt, 2, password, -1, SQLITE_STATIC);
 
     rc = sqlite3_step(stmt);
-    int success = 0;
+    int succeeded = 0;
     if (rc == SQLITE_ROW) // User found with correct password
     {
-        success = 1; // Return success status
+        succeeded = 1; // Return succeeded status
     }
     else
     {
@@ -116,5 +117,6 @@ validation:
 
     sqlite3_finalize(stmt);
     sqlite3_close(db);
-    return success;
+    *u->name = username;
+    mainMenu(&u);
 }

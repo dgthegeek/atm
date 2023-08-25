@@ -1,9 +1,9 @@
 #include "header.h"
 
-void createNewAcc(struct User u)
+void createNewAcc(struct User *u)
 {
     sqlite3 *db;
-    int userId = getUserIdByUsername(db, u.name);
+    
     int rc = sqlite3_open(DB_FILE, &db);
     if (rc != SQLITE_OK)
     {
@@ -12,29 +12,31 @@ void createNewAcc(struct User u)
         return;
     }
 
+
     struct Record newRecord;
+dateValidation:
 
     printf("Enter today's date (mm/dd/yyyy): ");
     if (scanf("%d/%d/%d", &newRecord.deposit.month, &newRecord.deposit.day, &newRecord.deposit.year) != 3)
     {
-        printf("Invalid date format.\n");
-        sqlite3_close(db);
-        return;
+        printf("\n Invalid date format! Please restart again...\n\n");
+        flushBuffer();
+        goto dateValidation;
     }
 
     printf("Enter the account number: ");
     if (scanf("%d", &newRecord.accountNbr) != 1)
     {
-        printf("Invalid account number format.\n");
-        sqlite3_close(db);
-        return;
+        printf("\n Invalid date format! Please restart again...\n\n");
+        flushBuffer();
+        goto dateValidation;
     }
 
-    if (isAccountNumberTaken(newRecord.accountNbr))
+    if (isAccountNumberTaken(&newRecord.accountNbr))
     {
-        printf("Account number is already taken.\n");
-        sqlite3_close(db);
-        return;
+        printf("\n Invalid date format! Please restart again...\n\n");
+        flushBuffer();
+        goto dateValidation;
     }
 
     printf("Enter the country: ");
@@ -43,17 +45,17 @@ void createNewAcc(struct User u)
     printf("Enter the phone number: ");
     if (scanf("%d", &newRecord.phone) != 1)
     {
-        printf("Invalid phone number format.\n");
-        sqlite3_close(db);
-        return;
+        printf("\n Invalid date format! Please restart again...\n\n");
+        flushBuffer();
+        goto dateValidation;
     }
 
     printf("Enter amount to deposit: ");
     if (scanf("%lf", &newRecord.amount) != 1)
     {
-        printf("Invalid amount format.\n");
-        sqlite3_close(db);
-        return;
+        printf("\n Invalid date format! Please restart again...\n\n");
+        flushBuffer();
+        goto dateValidation;
     }
 
     printf("\nChoose the type of account:\n\t-> saving\n\t-> current\n\t-> fixed01(for 1 year)\n\t-> fixed02(for 2 years)\n\t-> fixed03(for 3 years)\n\n\tEnter your choice:");
@@ -65,22 +67,23 @@ void createNewAcc(struct User u)
         strcmp(newRecord.accountType, "fixed02") != 0 &&
         strcmp(newRecord.accountType, "fixed03") != 0)
     {
-        printf("Invalid account type.\n");
-        sqlite3_close(db);
-        return;
+        printf("\n Invalid date format! Please restart again...\n\n");
+        flushBuffer();
+        goto dateValidation;
     }
 
     char query[1000];
-    sprintf(query, "INSERT INTO Records (UserId, DepositMonth, DepositDay, DepositYear, AccountNbr, Country, Phone, Amount, AccountType) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
+    sprintf(query, "INSERT INTO Records (UserId, Month, Day, Year, AccountNbr, Country, Phone, Amount, AccountType) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
 
     sqlite3_stmt *stmt;
     rc = sqlite3_prepare_v2(db, query, -1, &stmt, NULL);
     if (rc != SQLITE_OK)
     {
-        printf("Error preparing statement: %s\n", sqlite3_errmsg(db));
-        sqlite3_close(db);
-        return;
+       printf("\n Invalid date format! Please restart again...\n\n");
+        flushBuffer();
+        goto dateValidation;
     }
+    int userId = getUserIdByUsername(&u->name);
 
     sqlite3_bind_int(stmt, 1, userId);
     sqlite3_bind_int(stmt, 2, newRecord.deposit.month);

@@ -1,6 +1,6 @@
 #include "header.h"
 
-void mainMenu(struct User u)
+void mainMenu(struct User *u)
 {
 validation:
     int option;
@@ -23,7 +23,9 @@ validation:
     switch (option)
     {
     case 1:
-        createNewAcc(u);
+        createNewAcc(&u);
+        printf("username: %s",&u->name);
+        success();
         break;
     case 2:
         fprintf("%d",2);
@@ -34,7 +36,7 @@ validation:
         fprintf("%d",3);
         break;
     case 4:
-        checkAllAccounts(u);
+        checkAllAccounts(*u);
         break;
     case 5:
         fprintf("%d",5);
@@ -81,7 +83,7 @@ validOption:
     switch (option)
     {
     case 1:
-        loginMenu();
+        loginMenu(&u);
         break;
     case 2:
         registerMenu();
@@ -115,6 +117,6 @@ int main()
     createTable(db);
 
     initMenu(&u);
-    mainMenu(u);
+    
     return 0;
 }
