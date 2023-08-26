@@ -1,5 +1,6 @@
 #include "header.h"
 
+
 void mainMenu(struct User *u)
 {
 validation:
@@ -24,7 +25,7 @@ validation:
     {
     case 1:
         createNewAcc(&u);
-        printf("username: %s",&u->name);
+        printf("username: %s",currentUsername);
         success();
         break;
     case 2:
@@ -36,7 +37,8 @@ validation:
         fprintf("%d",3);
         break;
     case 4:
-        checkAllAccounts(*u);
+        checkAllAccounts(getUserIdByUsername(currentUsername));
+        success();
         break;
     case 5:
         fprintf("%d",5);
@@ -67,6 +69,7 @@ validation:
 };
 
 void initMenu(struct User *u)
+
 {
 validOption:
     int option;

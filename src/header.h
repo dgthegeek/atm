@@ -41,7 +41,7 @@ extern const char *DB_FILE;
 // system function
 void createNewAcc(struct User *u);
 void mainMenu(struct User *u);
-void checkAllAccounts(struct User u);
+void checkAllAccounts(int userId);
 
 //utils functions
 void flushBuffer();
@@ -52,5 +52,11 @@ int isUsernameTaken(const char *username);
 
 
 void createTable(sqlite3 *db);
+
+
+//Session
+extern char currentUsername[50]; // Global variable to store the current user's username
+
+void setCurrentUsername(const char *username);
 
 #endif

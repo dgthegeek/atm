@@ -1,6 +1,7 @@
 #include <termios.h>
 #include "header.h"
 
+
 const char *DB_FILE = "./data/atm.db";
 
 
@@ -63,6 +64,7 @@ validation:
 
     sqlite3_close(db);
     printf("Registration succeededful!\n");
+    setCurrentUsername(newUser.name);
     mainMenu(&newUser);
 }
 
@@ -117,6 +119,7 @@ validation:
 
     sqlite3_finalize(stmt);
     sqlite3_close(db);
-    *u->name = username;
+        setCurrentUsername(username);
+
     mainMenu(&u);
 }

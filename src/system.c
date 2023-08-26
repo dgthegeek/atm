@@ -83,7 +83,7 @@ dateValidation:
         flushBuffer();
         goto dateValidation;
     }
-    int userId = getUserIdByUsername(&u->name);
+    int userId = getUserIdByUsername(currentUsername);
 
     sqlite3_bind_int(stmt, 1, userId);
     sqlite3_bind_int(stmt, 2, newRecord.deposit.month);
@@ -99,9 +99,66 @@ dateValidation:
     if (rc != SQLITE_DONE)
     {
         printf("Error inserting record: %s\n", sqlite3_errmsg(db));
+        printf("\nPlease restart again...\n\n");
+        goto dateValidation;
+
     }
 
     sqlite3_finalize(stmt);
     sqlite3_close(db);
     success();
+}
+
+
+void checkAllAccounts(int userId) {
+    sqlite3 *db;
+    int rc = sqlite3_open(DB_FILE, &db);
+    if (rc != SQLITE_OK) {
+        printf("Error opening database: %s\n", sqlite3_errmsg(db));
+        sqlite3_close(db);
+        return;
+    }
+
+    char query[1000];
+    sprintf(query, "SELECT * FROM Records WHERE UserId = ?");
+
+    sqlite3_stmt *stmt;
+    rc = sqlite3_prepare_v2(db, query, -1, &stmt, NULL);
+    if (rc != SQLITE_OK) {
+        printf("Error preparing statement: %s\n", sqlite3_errmsg(db));
+        sqlite3_close(db);
+        return;
+    }
+
+    sqlite3_bind_int(stmt, 1, userId);
+
+    while ((rc = sqlite3_step(stmt)) == SQLITE_ROW) {
+        int accountNbr = sqlite3_column_int(stmt, 5);
+        int day = sqlite3_column_int(stmt, 2);
+        int month = sqlite3_column_int(stmt, 3);
+        int year = sqlite3_column_int(stmt, 4);
+        const char *country = (const char *)sqlite3_column_text(stmt, 6);
+        int phone = sqlite3_column_int(stmt, 7);
+        double amount = sqlite3_column_double(stmt, 8);
+        const char *accountType = (const char *)sqlite3_column_text(stmt, 9);
+
+        printf("_____________________\n");
+            printf("\nAccount number:%d\nDeposit Date:%d/%d/%d \ncountry:%s \nPhone number:%d \nAmount deposited: $%.2f \nType Of Account:%s\n",
+                   accountNbr,
+                   day,
+                   month,
+                   year,
+                   country,
+                   phone,
+                   amount,
+                   accountType);
+
+    }
+
+    if (rc != SQLITE_DONE) {
+        printf("Error fetching records: %s\n", sqlite3_errmsg(db));
+    }
+
+    sqlite3_finalize(stmt);
+    sqlite3_close(db);
 }
