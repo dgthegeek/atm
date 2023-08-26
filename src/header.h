@@ -42,6 +42,7 @@ extern const char *DB_FILE;
 void createNewAcc(struct User *u);
 void mainMenu(struct User *u);
 void checkAllAccounts(int userId);
+void updateAccountInfo(int userId);
 
 //utils functions
 void flushBuffer();

@@ -29,7 +29,8 @@ validation:
         success();
         break;
     case 2:
-        fprintf("%d",2);
+        updateAccountInfo(getUserIdByUsername(currentUsername));
+        success();
         break;
     case 3:
         // student TODO : add your **Check the details of existing accounts** function

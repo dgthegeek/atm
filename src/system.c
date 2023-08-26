@@ -152,11 +152,104 @@ void checkAllAccounts(int userId) {
                    phone,
                    amount,
                    accountType);
-
     }
 
     if (rc != SQLITE_DONE) {
         printf("Error fetching records: %s\n", sqlite3_errmsg(db));
+    }
+
+    sqlite3_finalize(stmt);
+    sqlite3_close(db);
+}
+
+void updateAccountInfo(int userId) {
+    sqlite3 *db;
+    int rc = sqlite3_open(DB_FILE, &db);
+    if (rc != SQLITE_OK) {
+        printf("Error opening database: %s\n", sqlite3_errmsg(db));
+        sqlite3_close(db);
+        return;
+    }
+    
+validation:
+    
+    int accountNbr;
+    printf("Enter the account number you want to update: ");
+    if (scanf("%d", &accountNbr) != 1) {
+        printf("Invalid account number format... Try again\n");
+        while (getchar() != '\n'); // Clear the input buffer
+        flushBuffer();
+        goto validation;
+    }
+
+    char query[1000];
+    sprintf(query, "SELECT * FROM Records WHERE UserId = ? AND AccountNbr = ?");
+    
+    sqlite3_stmt *stmt;
+    rc = sqlite3_prepare_v2(db, query, -1, &stmt, NULL);
+    if (rc != SQLITE_OK) {
+        printf("Error preparing statement: %s\n", sqlite3_errmsg(db));
+        sqlite3_close(db);
+        return;
+    }
+
+    sqlite3_bind_int(stmt, 1, userId);
+    sqlite3_bind_int(stmt, 2, accountNbr);
+
+    rc = sqlite3_step(stmt);
+    if (rc != SQLITE_ROW) {
+        printf("Account not found...\nPleaze try again\n");
+        sqlite3_finalize(stmt);
+        sqlite3_close(db);
+        goto validation;
+        return;
+    }
+
+    sqlite3_finalize(stmt);
+
+    int choice;
+choiceValidation:
+    printf("Choose the field to update:\n");
+    printf("1 -> Phone\n");
+    printf("2 -> Country\n");
+    printf("Enter your choice: ");
+    if (scanf("%d", &choice) != 1 || (choice != 1 && choice != 2)) {
+        printf("Invalid choice.\n");
+        while (getchar() != '\n'); // Clear the input buffer
+        goto choiceValidation;
+        sqlite3_close(db);
+        return;
+    }
+
+    char fieldToUpdate[10];
+    if (choice == 1) {
+        strcpy(fieldToUpdate, "Phone");
+    } else if (choice == 2) {
+        strcpy(fieldToUpdate, "Country");
+    }
+
+    char newValue[100];
+    printf("Enter the new value for %s: ", fieldToUpdate);
+    scanf("%s", newValue);
+
+    sprintf(query, "UPDATE Records SET %s = ? WHERE UserId = ? AND AccountNbr = ?", fieldToUpdate);
+
+    rc = sqlite3_prepare_v2(db, query, -1, &stmt, NULL);
+    if (rc != SQLITE_OK) {
+        printf("Error preparing statement: %s\n", sqlite3_errmsg(db));
+        sqlite3_close(db);
+        return;
+    }
+
+    sqlite3_bind_text(stmt, 1, newValue, -1, SQLITE_STATIC);
+    sqlite3_bind_int(stmt, 2, userId);
+    sqlite3_bind_int(stmt, 3, accountNbr);
+
+    rc = sqlite3_step(stmt);
+    if (rc != SQLITE_DONE) {
+        printf("Error updating account info: %s\n", sqlite3_errmsg(db));
+    } else {
+        printf("Account information updated successfully.\n");
     }
 
     sqlite3_finalize(stmt);
