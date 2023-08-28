@@ -3,6 +3,7 @@
 
 void mainMenu(struct User *u)
 {
+flushBuffer();
 validation:
     int option;
     system("clear");
@@ -24,7 +25,7 @@ validation:
     switch (option)
     {
     case 1:
-        createNewAcc(&u);
+        createNewAcc(u);
         printf("username: %s",currentUsername);
         success();
         break;
@@ -33,13 +34,13 @@ validation:
         success();
         break;
     case 3:
-        // student TODO : add your **Check the details of existing accounts** function
-        // here
-        fprintf("%d",3);
+        displayAccountInfo(getUserIdByUsername(currentUsername));
+        success();
         break;
     case 4:
         checkAllAccounts(getUserIdByUsername(currentUsername));
         success();
+
         break;
     case 5:
         fprintf("%d",5);
@@ -48,10 +49,8 @@ validation:
         // here
         break;
     case 6:
-        fprintf("%d",6);
-
-        // student TODO : add your **Remove existing account** function
-        // here
+        deleteAccount(getUserIdByUsername(currentUsername));
+        success();
         break;
     case 7:
         fprintf("%d",7);
@@ -87,7 +86,7 @@ validOption:
     switch (option)
     {
     case 1:
-        loginMenu(&u);
+        loginMenu(u);
         break;
     case 2:
         registerMenu();

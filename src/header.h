@@ -50,6 +50,8 @@ void Scanner(int *i);
 int getUserIdByUsername(const char *username);
 int isAccountNumberTaken(const int *AccountNbr);
 int isUsernameTaken(const char *username);
+void displayAccountInfo(int userId);
+void deleteAccount(int userId);
 
 
 void createTable(sqlite3 *db);
