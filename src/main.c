@@ -1,9 +1,8 @@
 #include "header.h"
 
-
 void mainMenu(struct User *u)
 {
-flushBuffer();
+    flushBuffer();
 validation:
     int option;
     system("clear");
@@ -18,15 +17,13 @@ validation:
     printf("\n\t\t[7]- Transfer ownership\n");
     printf("\n\t\t[8]- Exit\n");
 
-
     Scanner(&option);
-   
 
     switch (option)
     {
     case 1:
         createNewAcc(u);
-        printf("username: %s",currentUsername);
+        printf("username: %s", currentUsername);
         success();
         break;
     case 2:
@@ -40,23 +37,18 @@ validation:
     case 4:
         checkAllAccounts(getUserIdByUsername(currentUsername));
         success();
-
         break;
     case 5:
-        fprintf("%d",5);
-
-        // student TODO : add your **Make transaction** function
-        // here
+        makeTransaction(getUserIdByUsername(currentUsername));
+        success();
         break;
     case 6:
         deleteAccount(getUserIdByUsername(currentUsername));
         success();
         break;
     case 7:
-        fprintf("%d",7);
-
-        // student TODO : add your **Transfer owner** function
-        // here
+        transferAccount(getUserIdByUsername(currentUsername));
+        success();
         break;
     case 8:
         exit(1);
@@ -82,7 +74,6 @@ validOption:
 
     Scanner(&option);
 
-
     switch (option)
     {
     case 1:
@@ -100,7 +91,6 @@ validOption:
         goto validOption;
     }
 };
-
 
 int main()
 {
@@ -120,6 +110,6 @@ int main()
     createTable(db);
 
     initMenu(&u);
-    
+
     return 0;
 }

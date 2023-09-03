@@ -346,16 +346,18 @@ void deleteAccount(int userId) {
         return;
     }
 validation:
+
     int accountNbr;
     printf("Enter the account number you want to delete: ");
     if (scanf("%d", &accountNbr) != 1) {
         printf("Invalid account number format... Try again\n");
-        flushBuffer();
-        goto validation;
+        while (getchar() != '\n'); // Clear the input buffer
+        sqlite3_close(db);
+        return;
     }
 
     char query[1000];
-    sprintf(query, "DELETE FROM Records WHERE UserId = ? AND AccountNbr = ?");
+    sprintf(query, "SELECT * FROM Records WHERE UserId = ? AND AccountNbr = ?");
     
     sqlite3_stmt *stmt;
     rc = sqlite3_prepare_v2(db, query, -1, &stmt, NULL);
@@ -369,11 +371,236 @@ validation:
     sqlite3_bind_int(stmt, 2, accountNbr);
 
     rc = sqlite3_step(stmt);
-    if (rc != SQLITE_DONE) {
+    if (rc != SQLITE_ROW) {
+        printf("Account not found...  Try again\n");
+        flushBuffer();
+        goto validation;
+    } else {
+        // The account exists, proceed with the deletion
+        sqlite3_finalize(stmt);
+        
+        // Prepare the delete statement
+        sprintf(query, "DELETE FROM Records WHERE UserId = ? AND AccountNbr = ?");
+        rc = sqlite3_prepare_v2(db, query, -1, &stmt, NULL);
+        if (rc != SQLITE_OK) {
+            printf("Error preparing delete statement: %s\n", sqlite3_errmsg(db));
+            sqlite3_close(db);
+            return;
+        }
+        
+        sqlite3_bind_int(stmt, 1, userId);
+        sqlite3_bind_int(stmt, 2, accountNbr);
+
+        rc = sqlite3_step(stmt);
+        if (rc == SQLITE_DONE) {
+            printf("Account deleted successfully.\n");
+        } else {
+            printf("Error deleting account: %s\n", sqlite3_errmsg(db));
+        }
+
+        sqlite3_finalize(stmt);
+    }
+
+    sqlite3_close(db);
+}
+
+void transferAccount(int userId) {
+    sqlite3 *db;
+    int rc = sqlite3_open(DB_FILE, &db);
+    if (rc != SQLITE_OK) {
+        printf("Error opening database: %s\n", sqlite3_errmsg(db));
+        sqlite3_close(db);
+        return;
+    }
+validation:
+    int accountNbr;
+    printf("Enter the account number you want to transfer: ");
+    if (scanf("%d", &accountNbr) != 1) {
+        printf("Invalid account number format... Try again\n");
+        flushBuffer();
+        goto validation;
+       
+    }
+
+    char query[1000];
+    sprintf(query, "SELECT * FROM Records WHERE UserId = ? AND AccountNbr = ?");
+    
+    sqlite3_stmt *stmt;
+    rc = sqlite3_prepare_v2(db, query, -1, &stmt, NULL);
+    if (rc != SQLITE_OK) {
+        printf("Error preparing statement: %s\n", sqlite3_errmsg(db));
+        sqlite3_close(db);
+        return;
+    }
+
+    sqlite3_bind_int(stmt, 1, userId);
+    sqlite3_bind_int(stmt, 2, accountNbr);
+
+    rc = sqlite3_step(stmt);
+    if (rc != SQLITE_ROW) {
         printf("Account not found...\nPleaze try again\n");
         flushBuffer();
         goto validation;
+    }
+
+    sqlite3_finalize(stmt);
+
+    char newUsername[50];
+userValidation:
+    printf("Enter the username of the user you want to transfer the account to: ");
+    scanf("%s", newUsername);
+
+    sprintf(query, "SELECT ID FROM Users WHERE Name = ?");
+    
+    rc = sqlite3_prepare_v2(db, query, -1, &stmt, NULL);
+    if (rc != SQLITE_OK) {
+        printf("Error preparing statement: %s\n", sqlite3_errmsg(db));
+        sqlite3_close(db);
         return;
+    }
+
+    sqlite3_bind_text(stmt, 1, newUsername, -1, SQLITE_STATIC);
+
+    rc = sqlite3_step(stmt);
+    if (rc != SQLITE_ROW) {
+        printf("User not found...\nPleaze try again\n");
+        flushBuffer();
+        goto userValidation;
+    }
+
+    int newUserId = sqlite3_column_int(stmt, 0);
+    sqlite3_finalize(stmt);
+
+    // Update the account's userId
+    sprintf(query, "UPDATE Records SET UserId = ? WHERE UserId = ? AND AccountNbr = ?");
+    
+    rc = sqlite3_prepare_v2(db, query, -1, &stmt, NULL);
+    if (rc != SQLITE_OK) {
+        printf("Error preparing statement: %s\n", sqlite3_errmsg(db));
+        sqlite3_close(db);
+        return;
+    }
+
+    sqlite3_bind_int(stmt, 1, newUserId);
+    sqlite3_bind_int(stmt, 2, userId);
+    sqlite3_bind_int(stmt, 3, accountNbr);
+
+    rc = sqlite3_step(stmt);
+    if (rc == SQLITE_DONE) {
+        printf("Account transferred successfully.\n");
+    } else {
+        printf("Error transferring account: %s\n", sqlite3_errmsg(db));
+    }
+
+    sqlite3_finalize(stmt);
+    sqlite3_close(db);
+}
+
+void makeTransaction(int userId) {
+    sqlite3 *db;
+    int rc = sqlite3_open(DB_FILE, &db);
+    if (rc != SQLITE_OK) {
+        printf("Error opening database: %s\n", sqlite3_errmsg(db));
+        sqlite3_close(db);
+        return;
+    }
+validation:
+    int accountNbr;
+    printf("Enter the account number for the transaction: ");
+    if (scanf("%d", &accountNbr) != 1) {
+        printf("Invalid account number format... Try again\n");
+        flushBuffer();
+        goto validation;
+    }
+
+    char query[1000];
+    sprintf(query, "SELECT * FROM Records WHERE UserId = ? AND AccountNbr = ?");
+    
+    sqlite3_stmt *stmt;
+    rc = sqlite3_prepare_v2(db, query, -1, &stmt, NULL);
+    if (rc != SQLITE_OK) {
+        printf("Error preparing statement: %s\n", sqlite3_errmsg(db));
+        sqlite3_close(db);
+        return;
+    }
+
+    sqlite3_bind_int(stmt, 1, userId);
+    sqlite3_bind_int(stmt, 2, accountNbr);
+
+    rc = sqlite3_step(stmt);
+    if (rc != SQLITE_ROW) {
+         printf("Account not found...  Try again\n");
+        flushBuffer();
+        goto validation;
+    }
+
+    int accountId = sqlite3_column_int(stmt, 0);
+    double currentAmount = sqlite3_column_double(stmt, 8);
+    char accountType[20];
+    strcpy(accountType, (char*)sqlite3_column_text(stmt, 9));
+    sqlite3_finalize(stmt);
+
+    // Check if account type allows transactions
+    if (strcmp(accountType, "fixed01") == 0 || strcmp(accountType, "fixed02") == 0 || strcmp(accountType, "fixed03") == 0) {
+        printf("This account type does not allow transactions.\n");
+        sqlite3_close(db);
+        return;
+    }
+
+    int choice;
+    double transactionAmount;
+choiceValidation:
+    printf("Choose the type of transaction:\n");
+    printf("1 -> Deposit\n");
+    printf("2 -> Withdraw\n");
+    printf("Enter your choice: ");
+    if (scanf("%d", &choice) != 1 || (choice != 1 && choice != 2)) {
+        printf("Invalid choice.\n");
+        while (getchar() != '\n')
+            ; // Clear the input buffer
+        goto choiceValidation;
+        sqlite3_close(db);
+        return;
+    }
+
+    if (choice == 1) {
+amountValidation:
+        printf("Enter the amount to deposit: ");
+        if (scanf("%lf", &transactionAmount) != 1 || transactionAmount <= 0) {
+            printf("Invalid amount format or value.\n");
+            goto amountValidation;
+        }
+
+        currentAmount += transactionAmount;
+    } else if (choice == 2) {
+amountValidation1:
+        printf("Enter the amount to withdraw: ");
+        if (scanf("%lf", &transactionAmount) != 1 || transactionAmount <= 0 || transactionAmount > currentAmount) {
+            printf("Invalid amount format or value.\n");
+            goto amountValidation1;
+        }
+
+        currentAmount -= transactionAmount;
+    }
+
+    // Update the account balance
+    sprintf(query, "UPDATE Records SET Amount = ? WHERE ID = ?");
+    
+    rc = sqlite3_prepare_v2(db, query, -1, &stmt, NULL);
+    if (rc != SQLITE_OK) {
+        printf("Error preparing statement: %s\n", sqlite3_errmsg(db));
+        sqlite3_close(db);
+        return;
+    }
+
+    sqlite3_bind_double(stmt, 1, currentAmount);
+    sqlite3_bind_int(stmt, 2, accountId);
+
+    rc = sqlite3_step(stmt);
+    if (rc == SQLITE_DONE) {
+        printf("Transaction completed successfully.\n");
+    } else {
+        printf("Error processing transaction: %s\n", sqlite3_errmsg(db));
     }
 
     sqlite3_finalize(stmt);

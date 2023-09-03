@@ -43,6 +43,8 @@ void createNewAcc(struct User *u);
 void mainMenu(struct User *u);
 void checkAllAccounts(int userId);
 void updateAccountInfo(int userId);
+void transferAccount(int userId);
+void makeTransaction(int userId);
 
 //utils functions
 void flushBuffer();
@@ -52,10 +54,7 @@ int isAccountNumberTaken(const int *AccountNbr);
 int isUsernameTaken(const char *username);
 void displayAccountInfo(int userId);
 void deleteAccount(int userId);
-
-
 void createTable(sqlite3 *db);
-
 
 //Session
 extern char currentUsername[50]; // Global variable to store the current user's username
