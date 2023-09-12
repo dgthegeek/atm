@@ -22,6 +22,12 @@ dateValidation:
         flushBuffer();
         goto dateValidation;
     }
+    else if (isValidDate(newRecord.deposit.day, newRecord.deposit.month, newRecord.deposit.year))
+    {
+        printf("\n Invalid date format! Please restart again...\n\n");
+        flushBuffer();
+        goto dateValidation;
+    }
 
     printf("Enter the account number: ");
     if (scanf("%d", &newRecord.accountNbr) != 1)

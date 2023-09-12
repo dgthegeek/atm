@@ -20,6 +20,11 @@ dateValidation:
         printf("\n Invalid data format! Please restart again...\n\n");
         flushBuffer();
         goto dateValidation;
+    } 
+    else if (!isValidDate(newRecord.deposit.day, newRecord.deposit.month, newRecord.deposit.year)) {
+        printf("\n Invalid data format! Please restart again...\n\n");
+        flushBuffer();
+        goto dateValidation;
     }
 
     printf("Enter the account number: ");
@@ -54,8 +59,26 @@ dateValidation:
         goto dateValidation;
     }
 
+  
     printf("Enter the country: ");
-    scanf("%s", newRecord.country);
+char countryStr[50]; // Use a string to read the country name
+if (scanf("%49s", countryStr) != 1) {
+    printf("\nInvalid data format! Please restart again...\n\n");
+    flushBuffer(); // Clear the input buffer
+    goto dateValidation;
+}
+
+// Verify if the country string contains non-alphabetic characters
+for (int i = 0; countryStr[i] != '\0'; i++) {
+    if (!isalpha(countryStr[i])) {
+        printf("\nInvalid country name format! Please restart again...\n\n");
+        flushBuffer(); // Clear the input buffer
+        goto dateValidation;
+    }
+}
+
+// Copy the country string to the newRecord structure
+strcpy(newRecord.country, countryStr);
 
     printf("Enter the phone number: ");
     if (scanf("%d", &newRecord.phone) != 1)

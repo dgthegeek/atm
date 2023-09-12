@@ -23,7 +23,6 @@ validation:
     {
     case 1:
         createNewAcc(u);
-        printf("username: %s", currentUsername);
         success();
         break;
     case 2:

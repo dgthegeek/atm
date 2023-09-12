@@ -10,6 +10,8 @@
 #include "../sqlite-amalgamation-3420000/sqlite3.h"
 #include <stdbool.h>
 #include <ctype.h>
+#include <stdbool.h>
+
 
 struct Date
 {
@@ -56,6 +58,8 @@ void Scanner(int *i);
 int getUserIdByUsername(const char *username);
 int isAccountNumberTaken(const int *AccountNbr);
 int isUsernameTaken(const char *username);
+bool isLeapYear(int year);
+bool isValidDate(int day, int month, int year);
 void displayAccountInfo(int userId);
 void deleteAccount(int userId);
 void createTable(sqlite3 *db);

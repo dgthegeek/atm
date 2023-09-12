@@ -1,4 +1,6 @@
 #include "header.h"
+#include <stdbool.h>
+
 
 void flushBuffer()
 {
@@ -265,4 +267,56 @@ int getUserIdByUsername(const char *username) {
 
     sqlite3_finalize(stmt);
     return userId;
+}
+
+bool isLeapYear(int year) {
+    // Check if the year is a leap year
+    return ((year % 4 == 0 && year % 100 != 0) || (year % 400 == 0));
+}
+
+bool isValidDate(int day, int month, int year) {
+    // Check if the year is within a reasonable range (adjust this as needed)
+    if (year < 1 || year > 9999) {
+        return false;
+    }
+
+    // Check if the month is valid (between 1 and 12)
+    if (month < 1 || month > 12) {
+        return false;
+    }
+
+    // Check if the day is valid for the given month
+    int maxDay = 31; // Default maximum day
+
+    if (month == 4 || month == 6 || month == 9 || month == 11) {
+        maxDay = 30;
+    } else if (month == 2) {
+        if (isLeapYear(year)) {
+            maxDay = 29;
+        } else {
+            maxDay = 28;
+        }
+    }
+
+    if (day < 1 || day > maxDay) {
+        return false;
+    }
+
+    // If all checks pass, the date is valid
+    return true;
+}
+
+int main() {
+    int day, month, year;
+
+    printf("Enter a date (day month year): ");
+    scanf("%d %d %d", &day, &month, &year);
+
+    if (isValidDate(day, month, year)) {
+        printf("The date is valid.\n");
+    } else {
+        printf("The date is not valid.\n");
+    }
+
+    return 0;
 }
