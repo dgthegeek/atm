@@ -366,9 +366,29 @@ validation:
                sqlite3_column_double(stmt, 8),
                sqlite3_column_text(stmt, 9));
                  
-        if (sqlite3_column_text(stmt, 9) == "current")
+        if (strcmp(sqlite3_column_text(stmt, 9), "current")==0)
         {
             printf("You will not get interests because the account is of type current");
+        } 
+        else if (strcmp(sqlite3_column_text(stmt, 9), "saving")==0)
+        {
+            double interest = (sqlite3_column_double(stmt, 8) * 7 * 10) / 100;
+            printf("\n->You will get $%lf as interest for 10 days every month\n", interest);
+        }
+        else if (strcmp(sqlite3_column_text(stmt, 9), "fixed01")==0)
+        {
+            double interest = (sqlite3_column_double(stmt, 8) * 4 * 10) / 100;
+            printf("\n->You will get %lf as interest for 10 days every month\n", interest);
+        }
+        else if (strcmp(sqlite3_column_text(stmt, 9), "fixed02")==0)
+        {
+            double interest = (sqlite3_column_double(stmt, 8) * 5 * 10) / 100;
+            printf("\n->You will get %lf as interest for 10 days every month\n", interest);
+        }
+        else if (strcmp(sqlite3_column_text(stmt, 9), "fixed03")==0)
+        {
+            double interest = (sqlite3_column_double(stmt, 8) * 8 * 10) / 100;
+            printf("\n->You will get %lf as interest for 10 days every month\n", interest);
         }
     }
 
