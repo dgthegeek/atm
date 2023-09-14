@@ -53,6 +53,7 @@ bool isAllDigits(const char *input);
 
 
 //utils functions
+int readInteger(const char *prompt);
 void flushBuffer();
 void Scanner(int *i);
 int getUserIdByUsername(const char *username);
