@@ -26,7 +26,7 @@ struct Record
     int phone;
     char accountType[10];
     int accountNbr;
-    double amount;
+    float amount;
     struct Date deposit;
 };
 
@@ -48,21 +48,20 @@ void mainMenu(struct User *u);
 void checkAllAccounts(int userId);
 void updateAccountInfo(int userId);
 void transferAccount(int userId);
+double readDouble(const char *prompt);
 void makeTransaction(int userId);
-bool isAllDigits(const char *input);
-
 
 //utils functions
 int readInteger(const char *prompt);
 void flushBuffer();
 void Scanner(int *i);
-int getUserIdByUsername(const char *username);
 int isAccountNumberTaken(const int *AccountNbr);
 int isUsernameTaken(const char *username);
 bool isLeapYear(int year);
 bool isValidDate(int day, int month, int year);
 void displayAccountInfo(int userId);
 void deleteAccount(int userId);
+int getUserIdByUsername(const char *username);
 void createTable(sqlite3 *db);
 
 //Session

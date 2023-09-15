@@ -52,7 +52,35 @@ invalid:
     }
 }
 
-
+double readDouble(const char *prompt) {
+    double number;
+    char input[20];
+    while (1) {
+        printf("%s", prompt);
+        if (scanf("%19[^\n]s", input) != 1) {
+            printf("\nInvalid data format! Please try again...\n\n");
+            flushBuffer();
+            continue;
+        }
+        int validInput = 1;
+        for (int i = 0; input[i] != '\0'; i++) {
+            if (!isdigit(input[i]) && strcmp(&input[i], ".") == 1) {
+                validInput = 0;
+                break;
+            }
+        }
+        if (!validInput) {
+            printf("\nInvalid data! Please try again...\n\n");
+            flushBuffer(); 
+            continue;
+        }
+        number = strtod(input, NULL);
+        
+        // If we reach this point, we have a valid integer
+        break;
+    }
+    return number;
+}
 
 int readInteger(const char *prompt) {
     int number;
@@ -163,11 +191,10 @@ void stayOrReturn(int notGood, void f(struct User u), struct User u)
 
 void success(struct User u)
 {
-    int option;
     printf("\n✔ Success!\n\n");
 invalid:
-    printf("Enter 1 to go to the main menu and 0 to exit!\n");
-    scanf("%d", &option);
+flushBuffer();
+int option = readInteger("Enter 1 to go to the main menu and 0 to exit!\n");
     system("clear");
     if (option == 1)
     {

@@ -20,8 +20,8 @@ dateValidation:
     char dateInput[50];
     char date[50];
     scanf(" %[^\n]",dateInput);
-    sscanf(dateInput, "%d/%d/%d/", &newRecord.deposit.month, &newRecord.deposit.day, &newRecord.deposit.year);
-    sprintf(date, "%d/%d/%d/", &newRecord.deposit.month, &newRecord.deposit.day, &newRecord.deposit.year);
+    sscanf(dateInput, "%d/%d/%d", &newRecord.deposit.month, &newRecord.deposit.day, &newRecord.deposit.year);
+    sprintf(date, "%d/%d/%d", newRecord.deposit.month, newRecord.deposit.day, newRecord.deposit.year);
     if (!isValidDate(newRecord.deposit.day, newRecord.deposit.month, newRecord.deposit.year)||strcmp(date, dateInput)) {
         printf("\n Invalid data format! Please restart again...\n\n");
         flushBuffer(); 
@@ -41,7 +41,7 @@ dateValidation:
 char countryStr[50]; // Use a string to read the country name
 if (scanf("%49s", countryStr) != 1) {
     printf("\nInvalid data format! Please restart again...\n\n");
-    flushBuffer(); // Clear the input buffer
+    flushBuffer(); // Clear the input bufferEnter today's date (
     goto dateValidation;
 }
 
@@ -55,17 +55,17 @@ for (int i = 0; countryStr[i] != '\0'; i++) {
 }
 
 // Copy the country string to the newRecord structure
-strcpy(newRecord.country, countryStr);
+    strcpy(newRecord.country, countryStr);
     flushBuffer();
     newRecord.phone = readInteger("Enter your phone number: ");
     flushBuffer();
-    newRecord.amount = readInteger("Enter the deposit amount: ");
+    newRecord.amount = readDouble("Enter the deposit amount: ");
     
 
-    printf("\nChoose the type of account:\n\t-> savings\n\t-> current\n\t-> fixed01(for 1 year)\n\t-> fixed02(for 2 years)\n\t-> fixed03(for 3 years)\n\n\tEnter your choice:");
+    printf("\nChoose the type of account:\n\t-> saving\n\t-> current\n\t-> fixed01(for 1 year)\n\t-> fixed02(for 2 years)\n\t-> fixed03(for 3 years)\n\n\tEnter your choice:");
     scanf("%s", newRecord.accountType);
 
-    if (strcmp(newRecord.accountType, "savings") != 0 &&
+    if (strcmp(newRecord.accountType, "saving") != 0 &&
         strcmp(newRecord.accountType, "current") != 0 &&
         strcmp(newRecord.accountType, "fixed01") != 0 &&
         strcmp(newRecord.accountType, "fixed02") != 0 &&
@@ -233,8 +233,37 @@ choiceValidation:
     }
 
     char newValue[100];
-    printf("Enter the new value for %s: ", fieldToUpdate);
-    scanf("%s", newValue);
+    int newValuePhone;
+
+    if (strcmp(fieldToUpdate, "Phone")==0)
+    {
+        flushBuffer();
+    newValuePhone = readInteger("Enter the new value for Phone: ");
+    }
+    else if (strcmp(fieldToUpdate, "Country")==0)
+    {
+        Validation:
+    printf("Enter the new value for country: ");
+    char countryStr[50]; // Use a string to read the country name
+    if (scanf("%49s", countryStr) != 1) {
+        printf("\nInvalid data format! Please restart again...\n\n");
+        flushBuffer(); // Clear the input bufferEnter today's date (
+        goto Validation;
+    }
+
+    // Verify if the country string contains non-alphabetic characters
+    for (int i = 0; countryStr[i] != '\0'; i++) {
+        if (!isalpha(countryStr[i])) {
+            printf("\nInvalid country name format! Please restart again...\n\n");
+            flushBuffer(); // Clear the input buffer
+            goto Validation;
+        }
+    }
+
+// Copy the country string to the newRecord structure
+    strcpy(newValue, countryStr);
+    }
+
 
     sprintf(query, "UPDATE Records SET %s = ? WHERE UserId = ? AND AccountNbr = ?", fieldToUpdate);
 
@@ -246,7 +275,14 @@ choiceValidation:
         return;
     }
 
+ if (strcmp(fieldToUpdate, "Phone")==0)
+    {
+    sqlite3_bind_int(stmt, 1, newValuePhone);
+    }
+    else  if (strcmp(fieldToUpdate, "Country")==0)
+    {
     sqlite3_bind_text(stmt, 1, newValue, -1, SQLITE_STATIC);
+    }
     sqlite3_bind_int(stmt, 2, userId);
     sqlite3_bind_int(stmt, 3, accountNbr);
 
