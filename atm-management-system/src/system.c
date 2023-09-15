@@ -14,44 +14,22 @@ void createNewAcc(struct User *u)
 
     struct Record newRecord;
 dateValidation:
+    
+
     printf("Enter today's date (mm/dd/yyyy): ");
-    if (scanf("%d/%d/%d", &newRecord.deposit.month, &newRecord.deposit.day, &newRecord.deposit.year) != 3)
-    {
+    char dateInput[50];
+    char date[50];
+    scanf(" %[^\n]",dateInput);
+    sscanf(dateInput, "%d/%d/%d/", &newRecord.deposit.month, &newRecord.deposit.day, &newRecord.deposit.year);
+    sprintf(date, "%d/%d/%d/", &newRecord.deposit.month, &newRecord.deposit.day, &newRecord.deposit.year);
+    if (!isValidDate(newRecord.deposit.day, newRecord.deposit.month, newRecord.deposit.year)||strcmp(date, dateInput)) {
         printf("\n Invalid data format! Please restart again...\n\n");
-        flushBuffer();
-        goto dateValidation;
-    } 
-    else if (!isValidDate(newRecord.deposit.day, newRecord.deposit.month, newRecord.deposit.year)) {
-        printf("\n Invalid data format! Please restart again...\n\n");
-        flushBuffer();
+        flushBuffer(); 
         goto dateValidation;
     }
-
-    printf("Enter the account number: ");
-    char accountNumberStr[20]; // Use a string to read the account number
-    if (scanf("%19[^\n]s", accountNumberStr) != 1) {
-    printf("\nInvalid data format! Please restart again...\n\n");
-    flushBuffer(); // Clear the input buffer
-    goto dateValidation;
-    }
-
-    // Verify if the account number string contains non-digit characters
-    for (int i = 0; accountNumberStr[i] != '\0'; i++) {
-        if (!isdigit(accountNumberStr[i])) {
-            printf("\nInvalid account number format! Please restart again...\n\n");
-            flushBuffer(); // Clear the input buffer
-            goto dateValidation;
-        }
-    }
-
-    // Convert the account number string to an integer
-    if (sscanf(accountNumberStr, "%d", &newRecord.accountNbr) != 1) {
-        printf("\nInvalid account number format! Please restart again...\n\n");
-        flushBuffer(); // Clear the input buffer
-        goto dateValidation;
-    }
-
-
+    flushBuffer();
+    newRecord.accountNbr = readInteger("Enter the account number : ");
+    
     if (isAccountNumberTaken(&newRecord.accountNbr))
     {
         printf("\nAccount number already exist! Please restart again...\n\n");
@@ -59,7 +37,6 @@ dateValidation:
         goto dateValidation;
     }
 
-  
     printf("Enter the country: ");
 char countryStr[50]; // Use a string to read the country name
 if (scanf("%49s", countryStr) != 1) {
@@ -79,34 +56,13 @@ for (int i = 0; countryStr[i] != '\0'; i++) {
 
 // Copy the country string to the newRecord structure
 strcpy(newRecord.country, countryStr);
-
+    flushBuffer();
     newRecord.phone = readInteger("Enter your phone number: ");
+    flushBuffer();
+    newRecord.amount = readInteger("Enter the deposit amount: ");
     
-    printf("Enter the deposite amount: ");
-    char amountStr[20]; // Use a string to read the account number
-    if (scanf("%19s", amountStr) != 1) {
-    printf("\nInvalid data format! Please restart again...\n\n");
-    flushBuffer(); // Clear the input buffer
-    goto dateValidation;
-    }
 
-    // Verify if the account number string contains non-digit characters
-    for (int i = 0; amountStr[i] != '\0'; i++) {
-        if (!isdigit(amountStr[i])) {
-            printf("\nInvalid amount format! Please restart again...\n\n");
-            flushBuffer(); // Clear the input buffer
-            goto dateValidation;
-        }
-    }
-
-    // Convert the account number string to an integer
-    if (sscanf(amountStr, "%le", &newRecord.amount) != 1) {
-        printf("\nInvalid amount format! Please restart again...\n\n");
-        flushBuffer(); // Clear the input buffer
-        goto dateValidation;
-    }
-
-    printf("\nChoose the type of account:\n\t-> saving\n\t-> current\n\t-> fixed01(for 1 year)\n\t-> fixed02(for 2 years)\n\t-> fixed03(for 3 years)\n\n\tEnter your choice:");
+    printf("\nChoose the type of account:\n\t-> savings\n\t-> current\n\t-> fixed01(for 1 year)\n\t-> fixed02(for 2 years)\n\t-> fixed03(for 3 years)\n\n\tEnter your choice:");
     scanf("%s", newRecord.accountType);
 
     if (strcmp(newRecord.accountType, "savings") != 0 &&
@@ -252,45 +208,18 @@ validation:
 
     sqlite3_finalize(stmt);
 
-    int choice;
+    
     flushBuffer();
 choiceValidation:
-    printf("Choose the field to update:\n");
     printf("1 -> Phone\n");
     printf("2 -> Country\n");
-    printf("Enter your choice: ");
-
-    //d
-    char choicestr[20]; // Use a string to read the account number
-    if (scanf("%19[^\n]s", choicestr) != 1) {
-    printf("\nInvalid data format! Please restart again...\n\n");
-    flushBuffer(); // Clear the input buffer
-    goto choiceValidation;
-    }
-
-    // Verify if the account number string contains non-digit characters
-    for (int i = 0; choicestr[i] != '\0'; i++) {
-        if (!isdigit(choicestr[i])) {
-            printf("\nInvalid account number format! Please restart again...\n\n");
-            flushBuffer(); // Clear the input buffer
-            goto choiceValidation;
-        }
-    }
-
-    // Convert the account number string to an integer
-    if (sscanf(choicestr, "%d", &choice) != 1) {
-        printf("\nInvalid choice format! Please restart again...\n\n");
-        flushBuffer(); // Clear the input buffer
-        goto choiceValidation;
-    }
-    //d
-
+    int choice = readInteger("Choose the field to update: ");
+    
     if (choice != 1 && choice != 2)
     {
         printf("Invalid choice.\n");
         flushBuffer();
-        sqlite3_close(db);
-        return;
+        goto choiceValidation;
     }
 
     char fieldToUpdate[10];
@@ -345,17 +274,9 @@ void displayAccountInfo(int userId)
         sqlite3_close(db);
         return;
     }
-
+    flushBuffer();
 validation:
-    int accountNbr;
-    printf("Enter the account number you want to display: ");
-    if (scanf("%d", &accountNbr) != 1)
-    {
-        printf("Invalid account number format... Try again\n");
-        flushBuffer();
-        goto validation;
-    }
-
+    int accountNbr = readInteger("Enter the account number : ");
     char query[1000];
     sprintf(query, "SELECT * FROM Records WHERE UserId = ? AND AccountNbr = ?");
 
@@ -399,22 +320,22 @@ validation:
         } 
         else if (strcmp(sqlite3_column_text(stmt, 9), "saving")==0)
         {
-            double interest = (sqlite3_column_double(stmt, 8) * 7 * 10) / 100;
+            double interest = ((sqlite3_column_double(stmt, 8) * 0.07) / 12) / 100;
             printf("\n->You will get $%lf as interest for 10 days every month\n", interest);
         }
         else if (strcmp(sqlite3_column_text(stmt, 9), "fixed01")==0)
         {
-            double interest = (sqlite3_column_double(stmt, 8) * 4 * 10) / 100;
+            double interest = (sqlite3_column_double(stmt, 8) * 0.04) / 100;
             printf("\n->You will get %lf as interest for 10 days every month\n", interest);
         }
         else if (strcmp(sqlite3_column_text(stmt, 9), "fixed02")==0)
         {
-            double interest = (sqlite3_column_double(stmt, 8) * 5 * 10) / 100;
+            double interest = (sqlite3_column_double(stmt, 8) * 0.05 * 2) / 100;
             printf("\n->You will get %lf as interest for 10 days every month\n", interest);
         }
         else if (strcmp(sqlite3_column_text(stmt, 9), "fixed03")==0)
         {
-            double interest = (sqlite3_column_double(stmt, 8) * 8 * 10) / 100;
+            double interest = (sqlite3_column_double(stmt, 8) * 0.08 * 3) / 100;
             printf("\n->You will get %lf as interest for 10 days every month\n", interest);
         }
     }
@@ -431,17 +352,10 @@ void deleteAccount(int userId) {
         sqlite3_close(db);
         return;
     }
+    flushBuffer();
 validation:
 
-    int accountNbr;
-    printf("Enter the account number you want to delete: ");
-    if (scanf("%d", &accountNbr) != 1) {
-        printf("Invalid account number format... Try again\n");
-        while (getchar() != '\n'); // Clear the input buffer
-        sqlite3_close(db);
-        return;
-    }
-
+    int accountNbr = readInteger("Enter the account number : ");
     char query[1000];
     sprintf(query, "SELECT * FROM Records WHERE UserId = ? AND AccountNbr = ?");
     
@@ -498,16 +412,9 @@ void transferAccount(int userId) {
         sqlite3_close(db);
         return;
     }
+    flushBuffer();
 validation:
-    int accountNbr;
-    printf("Enter the account number you want to transfer: ");
-    if (scanf("%d", &accountNbr) != 1) {
-        printf("Invalid account number format... Try again\n");
-        flushBuffer();
-        goto validation;
-       
-    }
-
+    int accountNbr = readInteger("Enter the account number : ");
     char query[1000];
     sprintf(query, "SELECT * FROM Records WHERE UserId = ? AND AccountNbr = ?");
     
@@ -590,15 +497,9 @@ void makeTransaction(int userId) {
         sqlite3_close(db);
         return;
     }
+    flushBuffer();
 validation:
-    int accountNbr;
-    printf("Enter the account number for the transaction: ");
-    if (scanf("%d", &accountNbr) != 1) {
-        printf("Invalid account number format... Try again\n");
-        flushBuffer();
-        goto validation;
-    }
-
+    int accountNbr = readInteger("Enter the account number : ");
     char query[1000];
     sprintf(query, "SELECT * FROM Records WHERE UserId = ? AND AccountNbr = ?");
     
@@ -632,27 +533,25 @@ validation:
         sqlite3_close(db);
         return;
     }
-
-    int choice;
+    flushBuffer();
     double transactionAmount;
 choiceValidation:
     printf("Choose the type of transaction:\n");
     printf("1 -> Deposit\n");
     printf("2 -> Withdraw\n");
-    printf("Enter your choice: ");
-    if (scanf("%d", &choice) != 1 || (choice != 1 && choice != 2)) {
+    int choice = readInteger("Enter your choice : ");
+
+    if (choice != 1 && choice != 2) {
         printf("Invalid choice.\n");
-        while (getchar() != '\n')
-            ; // Clear the input buffer
+        flushBuffer();
         goto choiceValidation;
-        sqlite3_close(db);
-        return;
     }
 
     if (choice == 1) {
 amountValidation:
-        printf("Enter the amount to deposit: ");
-        if (scanf("%lf", &transactionAmount) != 1 || transactionAmount <= 0) {
+flushBuffer();
+    int transactionAmount = readInteger("Enter the amount to deposit : ");
+        if ( &transactionAmount <= 0) {
             printf("Invalid amount format or value.\n");
             goto amountValidation;
         }
@@ -660,8 +559,8 @@ amountValidation:
         currentAmount += transactionAmount;
     } else if (choice == 2) {
 amountValidation1:
-        printf("Enter the amount to withdraw: ");
-        if (scanf("%lf", &transactionAmount) != 1 || transactionAmount <= 0 || transactionAmount > currentAmount) {
+        int transactionAmount = readInteger("Enter the amount to withdraw : ");
+        if (&transactionAmount <= 0 || transactionAmount > currentAmount) {
             printf("Invalid amount format or value.\n");
             goto amountValidation1;
         }
@@ -691,14 +590,4 @@ amountValidation1:
 
     sqlite3_finalize(stmt);
     sqlite3_close(db);
-}
-
-bool isAllDigits(const char *input) {
-    while (*input) {
-        if (!isdigit(*input)) {
-            return false;
-        }
-        input++;
-    }
-    return true;
 }

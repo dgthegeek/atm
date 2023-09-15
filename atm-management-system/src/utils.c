@@ -60,42 +60,34 @@ int readInteger(const char *prompt) {
 
     while (1) {
         printf("%s", prompt);
-
         if (scanf("%19[^\n]s", input) != 1) {
             printf("\nInvalid data format! Please try again...\n\n");
-            flushBuffer(); // Assuming you have a flushBuffer() function to clear the input buffer
+            flushBuffer();
             continue;
         }
-
         int validInput = 1;
-
         for (int i = 0; input[i] != '\0'; i++) {
             if (!isdigit(input[i])) {
                 validInput = 0;
                 break;
             }
         }
-
         if (!validInput) {
-            printf("\nInvalid account number format! Please try again...\n\n");
-            flushBuffer(); // Assuming you have a flushBuffer() function to clear the input buffer
+            printf("\nInvalid data! Please try again...\n\n");
+            flushBuffer(); 
             continue;
         }
-
         if (sscanf(input, "%d", &number) != 1) {
-            printf("\nInvalid account number format! Please try again...\n\n");
-            flushBuffer(); // Assuming you have a flushBuffer() function to clear the input buffer
+            printf("\nInvalid data! Please try again...\n\n");
+            flushBuffer(); 
             continue;
         }
 
         // If we reach this point, we have a valid integer
         break;
     }
-
     return number;
 }
-
-
 
 const char *RECORDS = "./data/records.txt";
 
@@ -288,7 +280,6 @@ int getUserIdByUsername(const char *username) {
         sqlite3_close(db);
         return;
     }
-
     const char *query = "SELECT ID FROM Users WHERE Name = ?";
 
     sqlite3_stmt *stmt;
@@ -329,7 +320,6 @@ bool isValidDate(int day, int month, int year) {
 
     // Check if the day is valid for the given month
     int maxDay = 31; // Default maximum day
-
     if (month == 4 || month == 6 || month == 9 || month == 11) {
         maxDay = 30;
     } else if (month == 2) {
@@ -339,11 +329,8 @@ bool isValidDate(int day, int month, int year) {
             maxDay = 28;
         }
     }
-
     if (day < 1 || day > maxDay) {
         return false;
     }
-
-    // If all checks pass, the date is valid
     return true;
 }
